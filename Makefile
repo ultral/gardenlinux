@@ -18,8 +18,16 @@ endif
 
 GARDENLINUX_BUILD_CRE ?= sudo podman
 
-.PHONY:all
-all: all_dev all_prod
+TARGETS=$(shell bin/gen_make_targets)
+TARGETS_DEV=$(filter _dev,$(TARGETS))
+TARGETS_PROD=$(filter _prod,$(TARGETS))
+TARGETS_DEFAULT=$(filter-out $(TARGETS_DEV) $(TARGETS_PROD),$(TARGETS))
+
+.PHONY: all default dev prod
+all: $(TARGETS)
+default: $(TARGETS_DEFAULT)
+dev: $(TARGETS_DEV)
+prod: $(TARGETS_PROD)
 
 SECUREBOOT_CRT=cert/secureboot.db.auth
 
@@ -32,6 +40,9 @@ $(SECUREBOOT_CRT): | container-cert
 	$(GARDENLINUX_BUILD_CRE) run --rm --volume '$(realpath $(dir $@)):/cert' $(CERT_CONTAINER_OPTS) 'gardenlinux/build-cert:$(VERSION)' make --directory=/cert $(CERT_MAKE_OPTS) default
 
 .PHONY: container-build container-cert container-test container-integration
+
+generate-targets:
+	@printf "%s\n" "All available targets have been generated and written to the 'make_targets.cache' file."
 
 container-build:
 	make --directory=container build-image
@@ -47,20 +58,8 @@ container-integration:
 
 build-environment: container-test container-build
 
-all_prod: ali aws container gcp azure metal openstack vmware kvm metalv
-
-all_dev: ali-dev aws-dev container-dev gcp-dev azure-dev metal-dev openstack-dev vmware-dev kvm-dev metalv-dev
-
-%: make_targets/% build-environment $(SECUREBOOT_CRT)
-	./build.sh $(BUILD_OPTS) --skip-build --features "$$(cat $<)" $(BUILDDIR) $(VERSION)
-
-%-dev: make_targets/% build-environment $(SECUREBOOT_CRT)
-	./build.sh $(BUILD_OPTS) --skip-build --features "$$(cat $<),_dev" $(BUILDDIR) $(VERSION)
-
-%-prod: make_targets/% build-environment $(SECUREBOOT_CRT)
-	./build.sh $(BUILD_OPTS) --skip-build --features "$$(cat $<),_prod" $(BUILDDIR) $(VERSION)
-
-onmetal: metal
+$(TARGETS): build-environment $(SECUREBOOT_CRT)
+	./build.sh $(BUILD_OPTS) --skip-build --features "$$(echo '$@' | sed 's/-/,/g;s/_/,_/g')" $(BUILDDIR) $(VERSION)
 
 ALI_IMAGE_NAME=$(IMAGE_BASENAME)-ali-$(VERSION)
 ali-upload:

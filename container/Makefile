@@ -22,12 +22,14 @@ build-image: needslim
 	if [ -n "$$($(GARDENLINUX_BUILD_CRE) image ls gardenlinux/build-image:$(VERSION_NUMBER) --format "{{.Repository}}:{{.Tag}}")" ]; then \
 		$(GARDENLINUX_BUILD_CRE) image rm --force gardenlinux/build-image:$(VERSION_NUMBER) || true; \
 	fi
-	@$(GARDENLINUX_BUILD_CRE) build --build-arg VERSION=$(VERSION) -t gardenlinux/build-image:$(VERSION) -t gardenlinux/build-image:$(VERSION_NUMBER) $(ALTNAME_INTERNAL) build-image; \
+	@$(GARDENLINUX_BUILD_CRE) build --build-arg VERSION=$(VERSION) -t gardenlinux/build-image:$(VERSION) -t gardenlinux/build-image:$(VERSION_NUMBER) $(ALTNAME_INTERNAL) build-image
 	rm build-image/gardenlinux.asc
 
 .PHONY: build-cert
 build-cert: needslim
+	cp -p ../gardenlinux.asc build-cert/gardenlinux.asc
 	@$(GARDENLINUX_BUILD_CRE) build --build-arg VERSION=$(VERSION) -t gardenlinux/build-cert:$(VERSION) $(ALTNAME_INTERNAL) build-cert
+	rm build-cert/gardenlinux.asc
 
 .PHONY: build
 build: needslim

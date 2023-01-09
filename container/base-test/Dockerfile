@@ -12,6 +12,7 @@ RUN  chown root:root $GARDENLINUX_MIRROR_KEY \
 
 RUN echo "deb http://deb.debian.org/debian testing main contrib non-free" > /etc/apt/sources.list \
      && echo "deb [signed-by=$GARDENLINUX_MIRROR_KEY] http://repo.gardenlinux.io/gardenlinux $VERSION main" >> /etc/apt/sources.list \
+     && sed -i 's/deb.debian.org/cdn-aws.deb.debian.org/g' /etc/apt/sources.list \
      && apt-get update \
      && apt-get install -y --no-install-recommends \
           curl \
@@ -34,7 +35,8 @@ RUN echo "deb http://deb.debian.org/debian testing main contrib non-free" > /etc
           qemu-efi-aarch64 \
           shellcheck \
           build-essential \
-          libpython3-dev
+          libpython3-dev \
+          onmetal-image
 
 # pipenv package was removed from bookworm https://tracker.debian.org/pkg/pipenv
 RUN pip install pipenv==2022.4.8

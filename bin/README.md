@@ -12,7 +12,6 @@ By the given directory, we distinguish between scripts that are mandatory for th
 | garden-build | Main script to build Garden Linux (creates a `chroot` env in a Docker container) |
 | garden-chroot | Performs all necessary steps to integrate Garden Linux features |
 | garden-config | Performs adjustments by activated `features` |
-| garden-debian-sources-list | Adjusts the Garden Linux repository and pins priorities |
 | garden-feat.go | Helper script to validate defined `features` (include, exclude, depends) |
 | garden-fixup | Helper script to clean up uneeded files after build process |
 | garden-fs | Creates the filesystem layout by `features` (creates: `fstab`) |
@@ -20,6 +19,7 @@ By the given directory, we distinguish between scripts that are mandatory for th
 | garden-slimify | Creates a slimifyed version of Garden Linux |
 | garden-tar | Creates a `.tar.xf` image of the build env from `chroot` env |
 | garden-version | Creates a version schema |
+| gen_make_targets | Generates `make` targets from the `flavour.yaml` |
 | get-arch | Evaluates the base arch of the build host |
 | makedisk | Creates the disks during the build process in the `chroot` env |
 | makepart | Creates the partitions during the build process in the `chroot` env |
